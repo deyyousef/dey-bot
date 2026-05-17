@@ -67,8 +67,8 @@ def make_level_image(member, old_level, new_level):
     draw.text((60, 195), member.display_name, font=font_name, fill=(255, 255, 255))
     draw.text((60, 325), f"Level {old_level}", font=font_level, fill=(200, 200, 200))
 
-    draw.line((95, 430, 95, 475), fill=(255, 255, 255), width=8)
-    draw.polygon([(78, 475), (112, 475), (95, 510)], fill=(255, 255, 255))
+    draw.line((95, 460, 95, 520), fill=(255, 255, 255), width=8)
+    draw.polygon([(78, 520), (112, 520), (95, 560)], fill=(255, 255, 255))
 
     x, y = 60, 520
     for dx in range(-4, 5):
