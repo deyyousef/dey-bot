@@ -28,7 +28,6 @@ def save_data(data):
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4)
 
-# ✅ التعديل الوحيد هنا (الخط)
 def get_font(size):
     try:
         return ImageFont.truetype("Cairo-Bold-2.ttf", size)
@@ -44,7 +43,7 @@ def make_level_image(member, old_level, new_level):
     overlay_draw.rectangle((0, 0, 550, 720), fill=(0, 0, 0, 180))
     bg = Image.alpha_composite(bg, overlay)
 
-    font_title = get_font(110)   # كبرته شوية
+    font_title = get_font(110)
     font_name = get_font(85)
     font_level = get_font(95)
 
@@ -66,15 +65,10 @@ def make_level_image(member, old_level, new_level):
 
     draw.text((60, 55), "Level Up!", font=font_title, fill=(255, 200, 0))
     draw.text((60, 195), member.display_name, font=font_name, fill=(255, 255, 255))
-
     draw.text((60, 325), f"Level {old_level}", font=font_level, fill=(200, 200, 200))
 
     draw.line((95, 430, 95, 475), fill=(255, 255, 255), width=8)
-    draw.polygon([
-        (78, 475),
-        (112, 475),
-        (95, 510)
-    ], fill=(255, 255, 255))
+    draw.polygon([(78, 475), (112, 475), (95, 510)], fill=(255, 255, 255))
 
     x, y = 60, 520
     for dx in range(-4, 5):
@@ -105,6 +99,7 @@ async def on_message(message):
     content = message.content.lower().strip()
     parts = content.split()
 
+    # secret تجربة فقط بدون XP
     if content == "secret":
         if message.author.id != OWNER_ID:
             return
@@ -121,31 +116,7 @@ async def on_message(message):
         )
         return
 
-    data[user_id]["xp"] += 5
-
-    if data[user_id]["xp"] >= 100:
-        old_level = data[user_id]["level"]
-        data[user_id]["xp"] = 0
-        data[user_id]["level"] += 1
-        new_level = data[user_id]["level"]
-
-        level_channel = discord.utils.get(
-            message.guild.text_channels,
-            name="🥇・level"
-        )
-
-        img = make_level_image(message.author, old_level, new_level)
-
-        msg = f"🎉 مبـروك {message.author.mention} وصـلت للفـل رقم {new_level}\nاستمر/ي يا أسطورة 🔥"
-
-        try:
-            if level_channel:
-                await level_channel.send(content=msg, file=discord.File(img))
-            else:
-                await message.channel.send(content=msg, file=discord.File(img))
-        except:
-            await message.channel.send(content=msg, file=discord.File(img))
-
+    # أمر p
     if parts and parts[0] == "p":
         if message.channel.name != "🤖・𝙘𝙤𝙢𝙢𝙖𝙣𝙙":
             save_data(data)
@@ -166,6 +137,7 @@ async def on_message(message):
         save_data(data)
         return
 
+    # أمر t
     if content == "t":
         if message.channel.name != "🤖・𝙘𝙤𝙢𝙢𝙖𝙣𝙙":
             save_data(data)
@@ -193,6 +165,31 @@ async def on_message(message):
         await message.channel.send(text)
         save_data(data)
         return
+
+    # XP للرسائل العادية فقط
+    data[user_id]["xp"] += 5
+
+    if data[user_id]["xp"] >= 100:
+        old_level = data[user_id]["level"]
+        data[user_id]["xp"] = 0
+        data[user_id]["level"] += 1
+        new_level = data[user_id]["level"]
+
+        level_channel = discord.utils.get(
+            message.guild.text_channels,
+            name="🥇・level"
+        )
+
+        img = make_level_image(message.author, old_level, new_level)
+        msg = f"🎉 مبـروك {message.author.mention} وصـلت للفـل رقم {new_level}\nاستمر/ي يا أسطورة 🔥"
+
+        try:
+            if level_channel:
+                await level_channel.send(content=msg, file=discord.File(img))
+            else:
+                await message.channel.send(content=msg, file=discord.File(img))
+        except:
+            await message.channel.send(content=msg, file=discord.File(img))
 
     save_data(data)
 
