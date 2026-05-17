@@ -58,8 +58,8 @@ def make_level_image(member, old_level, new_level):
     border_draw = ImageDraw.Draw(border)
     border_draw.ellipse((0, 0, 160, 160), fill=(255, 200, 0, 130))
 
-    bg.paste(border, (320, 270), border)
-    bg.paste(avatar, (330, 280), mask)
+    bg.paste(border, (450, 270), border)
+    bg.paste(avatar, (460, 280), mask)
 
     draw = ImageDraw.Draw(bg)
 
