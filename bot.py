@@ -28,19 +28,12 @@ def save_data(data):
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4)
 
+# ✅ التعديل الوحيد هنا (الخط)
 def get_font(size):
-    paths = [
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-        "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf",
-        "arialbd.ttf",
-        "arial.ttf"
-    ]
-    for path in paths:
-        try:
-            return ImageFont.truetype(path, size)
-        except:
-            pass
-    return ImageFont.load_default()
+    try:
+        return ImageFont.truetype("Cairo-Bold-2.ttf", size)
+    except:
+        return ImageFont.load_default()
 
 def make_level_image(member, old_level, new_level):
     bg = Image.open(BACKGROUND_IMAGE).convert("RGBA")
@@ -51,9 +44,9 @@ def make_level_image(member, old_level, new_level):
     overlay_draw.rectangle((0, 0, 550, 720), fill=(0, 0, 0, 180))
     bg = Image.alpha_composite(bg, overlay)
 
-    font_title = get_font(100)
-    font_name = get_font(75)
-    font_level = get_font(85)
+    font_title = get_font(110)   # كبرته شوية
+    font_name = get_font(85)
+    font_level = get_font(95)
 
     response = requests.get(member.display_avatar.url)
     avatar = Image.open(BytesIO(response.content)).convert("RGBA")
@@ -71,7 +64,7 @@ def make_level_image(member, old_level, new_level):
 
     draw = ImageDraw.Draw(bg)
 
-    draw.text((60, 55), "Level-up!", font=font_title, fill=(255, 200, 0))
+    draw.text((60, 55), "Level Up!", font=font_title, fill=(255, 200, 0))
     draw.text((60, 195), member.display_name, font=font_name, fill=(255, 255, 255))
 
     draw.text((60, 325), f"Level {old_level}", font=font_level, fill=(200, 200, 200))
