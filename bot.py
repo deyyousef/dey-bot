@@ -4,7 +4,6 @@ import os
 import requests
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
-import os
 
 TOKEN = os.getenv("TOKEN")
 OWNER_ID = 692428722120163413
@@ -29,6 +28,20 @@ def save_data(data):
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4)
 
+def get_font(size):
+    paths = [
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+        "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf",
+        "arialbd.ttf",
+        "arial.ttf"
+    ]
+    for path in paths:
+        try:
+            return ImageFont.truetype(path, size)
+        except:
+            pass
+    return ImageFont.load_default()
+
 def make_level_image(member, old_level, new_level):
     bg = Image.open(BACKGROUND_IMAGE).convert("RGBA")
     bg = bg.resize((1280, 720))
@@ -38,16 +51,10 @@ def make_level_image(member, old_level, new_level):
     overlay_draw.rectangle((0, 0, 550, 720), fill=(0, 0, 0, 180))
     bg = Image.alpha_composite(bg, overlay)
 
-    try:
-        font_title = ImageFont.truetype("arialbd.ttf", 80)
-        font_name = ImageFont.truetype("arialbd.ttf", 55)
-        font_level = ImageFont.truetype("arialbd.ttf", 65)
-    except:
-        font_title = ImageFont.load_default()
-        font_name = ImageFont.load_default()
-        font_level = ImageFont.load_default()
+    font_title = get_font(95)
+    font_name = get_font(70)
+    font_level = get_font(78)
 
-    # avatar
     response = requests.get(member.display_avatar.url)
     avatar = Image.open(BytesIO(response.content)).convert("RGBA")
     avatar = avatar.resize((140, 140))
@@ -55,7 +62,6 @@ def make_level_image(member, old_level, new_level):
     mask = Image.new("L", (140, 140), 0)
     ImageDraw.Draw(mask).ellipse((0, 0, 140, 140), fill=255)
 
-    # glow border
     border = Image.new("RGBA", (160, 160), (0, 0, 0, 0))
     border_draw = ImageDraw.Draw(border)
     border_draw.ellipse((0, 0, 160, 160), fill=(255, 200, 0, 130))
@@ -65,24 +71,22 @@ def make_level_image(member, old_level, new_level):
 
     draw = ImageDraw.Draw(bg)
 
-    draw.text((60, 80), "Level-up!", font=font_title, fill=(255, 200, 0))
-    draw.text((60, 220), member.display_name, font=font_name, fill=(255, 255, 255))
+    draw.text((60, 60), "Level-up!", font=font_title, fill=(255, 200, 0))
+    draw.text((60, 200), member.display_name, font=font_name, fill=(255, 255, 255))
 
-    draw.text((60, 340), f"Level {old_level}", font=font_level, fill=(180, 180, 180))
+    draw.text((60, 330), f"Level {old_level}", font=font_level, fill=(200, 200, 200))
 
-    # سهم مرسوم
-    draw.line((90, 420, 90, 460), fill=(255,255,255), width=5)
+    draw.line((95, 425, 95, 470), fill=(255, 255, 255), width=7)
     draw.polygon([
-        (80, 460),
-        (100, 460),
-        (90, 480)
-    ], fill=(255,255,255))
+        (80, 470),
+        (110, 470),
+        (95, 500)
+    ], fill=(255, 255, 255))
 
-    # Level الجديد
-    x, y = 60, 500
-    for dx in range(-3, 4):
-        for dy in range(-3, 4):
-            draw.text((x + dx, y + dy), f"Level {new_level}", font=font_level, fill=(255, 140, 0))
+    x, y = 60, 520
+    for dx in range(-4, 5):
+        for dy in range(-4, 5):
+            draw.text((x + dx, y + dy), f"Level {new_level}", font=font_level, fill=(255, 120, 0))
 
     draw.text((x, y), f"Level {new_level}", font=font_level, fill=(255, 255, 0))
 
@@ -105,13 +109,16 @@ async def on_message(message):
     if user_id not in data:
         data[user_id] = {"xp": 0, "level": 0}
 
-    # secret
-    if message.content.lower().strip() == "secret":
+    content = message.content.lower().strip()
+    parts = content.split()
+
+    if content == "secret":
         if message.author.id != OWNER_ID:
             return
 
-        old_level = data[user_id]["level"]
-        new_level = old_level + 1
+        current_level = data[user_id]["level"]
+        old_level = max(current_level - 1, 0)
+        new_level = current_level
 
         img = make_level_image(message.author, old_level, new_level)
 
@@ -121,7 +128,6 @@ async def on_message(message):
         )
         return
 
-    # XP
     data[user_id]["xp"] += 5
 
     if data[user_id]["xp"] >= 100:
@@ -137,25 +143,17 @@ async def on_message(message):
 
         img = make_level_image(message.author, old_level, new_level)
 
+        msg = f"🎉 مبـروك {message.author.mention} وصـلت للفـل رقم {new_level}\nاستمر/ي يا أسطورة 🔥"
+
         try:
             if level_channel:
-                await level_channel.send(
-                    content=f"🎉 مبـروك {message.author.mention} وصـلت للفـل رقم {new_level}\nاستمر/ي يا أسطورة 🔥",
-                    file=discord.File(img)
-                )
+                await level_channel.send(content=msg, file=discord.File(img))
             else:
-                await message.channel.send(
-                    content=f"🎉 مبـروك {message.author.mention} وصـلت للفـل رقم {new_level}\nاستمر/ي يا أسطورة 🔥",
-                    file=discord.File(img)
-                )
+                await message.channel.send(content=msg, file=discord.File(img))
         except:
-            await message.channel.send(
-                content=f"🎉 مبـروك {message.author.mention} وصـلت للفـل رقم {new_level}\nاستمر/ي يا أسطورة 🔥",
-                file=discord.File(img)
-            )
+            await message.channel.send(content=msg, file=discord.File(img))
 
-    # أمر p
-    if message.content.lower().split()[0] == "p":
+    if parts and parts[0] == "p":
         if message.channel.name != "🤖・𝙘𝙤𝙢𝙢𝙖𝙣𝙙":
             save_data(data)
             return
@@ -175,8 +173,7 @@ async def on_message(message):
         save_data(data)
         return
 
-    # أمر t
-    if message.content.lower().strip() == "t":
+    if content == "t":
         if message.channel.name != "🤖・𝙘𝙤𝙢𝙢𝙖𝙣𝙙":
             save_data(data)
             return
