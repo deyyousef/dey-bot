@@ -51,9 +51,9 @@ def make_level_image(member, old_level, new_level):
     overlay_draw.rectangle((0, 0, 550, 720), fill=(0, 0, 0, 180))
     bg = Image.alpha_composite(bg, overlay)
 
-    font_title = get_font(95)
-    font_name = get_font(70)
-    font_level = get_font(78)
+    font_title = get_font(100)
+    font_name = get_font(75)
+    font_level = get_font(85)
 
     response = requests.get(member.display_avatar.url)
     avatar = Image.open(BytesIO(response.content)).convert("RGBA")
@@ -71,16 +71,16 @@ def make_level_image(member, old_level, new_level):
 
     draw = ImageDraw.Draw(bg)
 
-    draw.text((60, 60), "Level-up!", font=font_title, fill=(255, 200, 0))
-    draw.text((60, 200), member.display_name, font=font_name, fill=(255, 255, 255))
+    draw.text((60, 55), "Level-up!", font=font_title, fill=(255, 200, 0))
+    draw.text((60, 195), member.display_name, font=font_name, fill=(255, 255, 255))
 
-    draw.text((60, 330), f"Level {old_level}", font=font_level, fill=(200, 200, 200))
+    draw.text((60, 325), f"Level {old_level}", font=font_level, fill=(200, 200, 200))
 
-    draw.line((95, 425, 95, 470), fill=(255, 255, 255), width=7)
+    draw.line((95, 430, 95, 475), fill=(255, 255, 255), width=8)
     draw.polygon([
-        (80, 470),
-        (110, 470),
-        (95, 500)
+        (78, 475),
+        (112, 475),
+        (95, 510)
     ], fill=(255, 255, 255))
 
     x, y = 60, 520
