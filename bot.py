@@ -7,6 +7,8 @@ from PIL import Image, ImageDraw, ImageFont
 
 TOKEN = os.getenv("TOKEN")
 OWNER_ID = 692428722120163413
+# الآيدي الخاص بروم اللفل التي حددتها
+LEVEL_CHANNEL_ID = 1500560323349053672
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -109,11 +111,13 @@ async def on_message(message):
         new_level = current_level
 
         img = make_level_image(message.author, old_level, new_level)
+        msg = f"🎉 مبـروك {message.author.mention} وصـلت للفـل رقم {new_level}\nاستمر/ي يا أسطورة 🔥"
 
-        await message.channel.send(
-            content=f"🎉 مبـروك {message.author.mention} وصـلت للفـل رقم {new_level}\nاستمر/ي يا أسطورة 🔥",
-            file=discord.File(img)
-        )
+        level_channel = client.get_channel(LEVEL_CHANNEL_ID)
+        if level_channel:
+            await level_channel.send(content=msg, file=discord.File(img))
+        else:
+            await message.channel.send(content=msg, file=discord.File(img))
         return
 
     # أمر p
@@ -175,10 +179,8 @@ async def on_message(message):
         data[user_id]["level"] += 1
         new_level = data[user_id]["level"]
 
-        level_channel = discord.utils.get(
-            message.guild.text_channels,
-            name="🥇・level"
-        )
+        # جلب الروم باستخدام الـ ID الجديد مباشرة
+        level_channel = client.get_channel(LEVEL_CHANNEL_ID)
 
         img = make_level_image(message.author, old_level, new_level)
         msg = f"🎉 مبـروك {message.author.mention} وصـلت للفـل رقم {new_level}\nاستمر/ي يا أسطورة 🔥"
