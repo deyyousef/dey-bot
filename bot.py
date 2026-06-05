@@ -125,7 +125,6 @@ async def on_message(message):
 
     # أمر p
     if parts and parts[0] == "p":
-        # التحقق من أن الأمر مكتوب في روم الأوامر المخصصة عبر الـ ID
         if message.channel.id != COMMAND_CHANNEL_ID:
             save_data(data)
             return
@@ -147,7 +146,6 @@ async def on_message(message):
 
     # أمر t
     if content == "t":
-        # التحقق من أن الأمر مكتوب في روم الأوامر المخصصة عبر الـ ID
         if message.channel.id != COMMAND_CHANNEL_ID:
             save_data(data)
             return
@@ -184,7 +182,6 @@ async def on_message(message):
         data[user_id]["level"] += 1
         new_level = data[user_id]["level"]
 
-        # جلب روم اللفل بالـ ID الجديد
         level_channel = client.get_channel(LEVEL_CHANNEL_ID)
 
         img = make_level_image(message.author, old_level, new_level)
