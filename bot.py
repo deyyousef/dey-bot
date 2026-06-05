@@ -101,8 +101,40 @@ async def on_message(message):
     if user_id not in data:
         data[user_id] = {"xp": 0, "level": 0}
 
-    content = message.content.lower().strip()
+    # تهيئة النصوص لدعم الـ Mentions والأوامر بشكل سليم
+    raw_content = message.content.strip()
+    content = raw_content.lower()
     parts = content.split()
+
+    # أمر إعطاء لفل لشخص مخصص (لك أنت فقط كمطور)
+    if parts and parts[0] == "setlevel!":
+        if message.author.id != OWNER_ID:
+            return
+
+        # التأكد من كتابة المنشن وتحديد رقم اللفل
+        if not message.mentions or len(parts) < 3:
+            await message.channel.send("❌ **الاستخدام الصحيح:** `setlevel! @member [level]`")
+            return
+
+        target = message.mentions[0]
+        tid = str(target.id)
+        
+        try:
+            new_level = int(parts[-1])
+        except ValueError:
+            await message.channel.send("❌ **يرجى كتابة رقم لفل صحيح.**")
+            return
+
+        if tid not in data:
+            data[tid] = {"xp": 0, "level": 0}
+
+        old_level = data[tid]["level"]
+        data[tid]["level"] = new_level
+        data[tid]["xp"] = 0  # تصفير الـ XP لتبدأ الحسبة الجديدة بشكل صحيح
+        save_data(data)
+
+        await message.channel.send(f"✅ تم تغيير لفل {target.mention} من `{old_level}` إلى `{new_level}` بنجاح!")
+        return
 
     # secret تجربة فقط بدون XP
     if content == "secret":
