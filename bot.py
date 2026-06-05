@@ -7,8 +7,11 @@ from PIL import Image, ImageDraw, ImageFont
 
 TOKEN = os.getenv("TOKEN")
 OWNER_ID = 692428722120163413
-# الآيدي الخاص بروم اللفل التي حددتها
+
+# الأي دي الخاص بروم اللفل والصور
 LEVEL_CHANNEL_ID = 1500560323349053672
+# الأي دي الخاص بروم الأوامر (p و t)
+COMMAND_CHANNEL_ID = 1500560180763557950
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -122,7 +125,8 @@ async def on_message(message):
 
     # أمر p
     if parts and parts[0] == "p":
-        if message.channel.name != "🤖・𝙘𝙤𝙢𝙢𝙖𝙣𝙙":
+        # التحقق من أن الأمر مكتوب في روم الأوامر المخصصة عبر الـ ID
+        if message.channel.id != COMMAND_CHANNEL_ID:
             save_data(data)
             return
 
@@ -143,7 +147,8 @@ async def on_message(message):
 
     # أمر t
     if content == "t":
-        if message.channel.name != "🤖・𝙘𝙤𝙢𝙢𝙖𝙣𝙙":
+        # التحقق من أن الأمر مكتوب في روم الأوامر المخصصة عبر الـ ID
+        if message.channel.id != COMMAND_CHANNEL_ID:
             save_data(data)
             return
 
@@ -179,7 +184,7 @@ async def on_message(message):
         data[user_id]["level"] += 1
         new_level = data[user_id]["level"]
 
-        # جلب الروم باستخدام الـ ID الجديد مباشرة
+        # جلب روم اللفل بالـ ID الجديد
         level_channel = client.get_channel(LEVEL_CHANNEL_ID)
 
         img = make_level_image(message.author, old_level, new_level)
