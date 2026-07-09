@@ -9,9 +9,9 @@ TOKEN = os.getenv("TOKEN")
 OWNER_ID = 692428722120163413
 
 # الأي دي الخاص بروم اللفل والصور
-LEVEL_CHANNEL_ID = 1500560323349053672
+LEVEL_CHANNEL_ID = 1524700103170986106
 # الأي دي الخاص بروم الأوامر (p و t)
-COMMAND_CHANNEL_ID = 1500560180763557950
+COMMAND_CHANNEL_ID = 1524700088956354601
 
 intents = discord.Intents.default()
 intents.message_content = True
